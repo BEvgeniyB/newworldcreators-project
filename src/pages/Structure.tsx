@@ -54,7 +54,7 @@ const Structure = () => {
       
       const chakraIds = [1, 2, 3, 4, 5, 6, 7];
       const promises = chakraIds.map(id => 
-        fetch(`https://functions.poehali.dev/802474e6-54c0-4040-a65f-71d604777df5?id=${id}`)
+        fetch(`https://functions.poehali.dev/80aff614-40a9-46c9-9ad5-1f04d234e307?id=${id}`)
           .then(res => res.json())
           .then(data => data.chakra)
       );
