@@ -29,7 +29,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     db_url = os.environ.get('DATABASE_URL')
@@ -37,7 +38,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Database configuration missing'})
+            'body': json.dumps({'error': 'Database configuration missing'}),
+            'isBase64Encoded': False
         }
     
     try:
@@ -69,7 +71,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Insufficient permissions'})
+                    'body': json.dumps({'error': 'Insufficient permissions'}),
+                    'isBase64Encoded': False
                 }
             
             result = update_chakra(cur, conn, chakra_id, body, user_id)
@@ -84,13 +87,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }
     
     return {
         'statusCode': 405,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Method not allowed'})
+        'body': json.dumps({'error': 'Method not allowed'}),
+        'isBase64Encoded': False
     }
 
 def get_all_chakras(cur) -> Dict[str, Any]:
@@ -109,13 +114,22 @@ def get_all_chakras(cur) -> Dict[str, Any]:
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'chakras': [dict(ch) for ch in chakras]}, ensure_ascii=False, default=json_serial)
+        'body': json.dumps({'chakras': [dict(ch) for ch in chakras]}, ensure_ascii=False, default=json_serial),
+        'isBase64Encoded': False
     }
 
 def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
     schema = 't_p91912798_newworldcreators_pro'
-    # Simple Query Protocol - escape single quotes
-    safe_id = str(int(chakra_id))  # Ensure it's a valid integer
+    try:
+        safe_id = str(int(chakra_id))
+    except (ValueError, TypeError):
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid chakra ID'}),
+            'isBase64Encoded': False
+        }
+    
     query = f"""
         SELECT 
             c.*,
@@ -132,7 +146,8 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         return {
             'statusCode': 404,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Chakra not found'})
+            'body': json.dumps({'error': 'Chakra not found'}),
+            'isBase64Encoded': False
         }
     
     chakra_dict = dict(chakra)
@@ -188,7 +203,8 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'chakra': chakra_dict}, ensure_ascii=False, default=json_serial)
+        'body': json.dumps({'chakra': chakra_dict}, ensure_ascii=False, default=json_serial),
+        'isBase64Encoded': False
     }
 
 def update_chakra(cur, conn, chakra_id: str, data: Dict, user_id: str) -> Dict[str, Any]:
@@ -206,7 +222,8 @@ def update_chakra(cur, conn, chakra_id: str, data: Dict, user_id: str) -> Dict[s
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'No fields to update'})
+            'body': json.dumps({'error': 'No fields to update'}),
+            'isBase64Encoded': False
         }
     
     values.append(chakra_id)
@@ -218,5 +235,6 @@ def update_chakra(cur, conn, chakra_id: str, data: Dict, user_id: str) -> Dict[s
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'success': True, 'message': 'Chakra updated'})
+        'body': json.dumps({'success': True, 'message': 'Chakra updated'}),
+        'isBase64Encoded': False
     }
