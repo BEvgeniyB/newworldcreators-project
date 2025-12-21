@@ -49,9 +49,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             chakra_id = params.get('id')
             
             if chakra_id:
-                return get_chakra_detail(cur, chakra_id)
+                result = get_chakra_detail(cur, chakra_id)
             else:
-                return get_all_chakras(cur)
+                result = get_all_chakras(cur)
+            
+            cur.close()
+            conn.close()
+            return result
         
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))
@@ -60,13 +64,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_id = event.get('headers', {}).get('X-User-Id')
             
             if user_role not in ['admin', 'responsible']:
+                cur.close()
+                conn.close()
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'Insufficient permissions'})
                 }
             
-            return update_chakra(cur, conn, chakra_id, body, user_id)
+            result = update_chakra(cur, conn, chakra_id, body, user_id)
+            cur.close()
+            conn.close()
+            return result
         
         cur.close()
         conn.close()
