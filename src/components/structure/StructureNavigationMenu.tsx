@@ -30,7 +30,7 @@ const StructureNavigationMenu = ({
     return colorMap[position] || '#000';
   };
 
-  const sortedChakras = [...chakras].sort((a, b) => a.position - b.position);
+  const sortedChakras = [...chakras].filter(c => c && c.position).sort((a, b) => a.position - b.position);
 
   return (
     <div className="fixed top-20 sm:top-22 md:top-24 right-2 md:right-4 z-40">

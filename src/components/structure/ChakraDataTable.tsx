@@ -35,7 +35,7 @@ const ChakraDataTable = ({ chakras }: ChakraDataTableProps) => {
     if (allExpanded) {
       setExpandedChakras(new Set());
     } else {
-      setExpandedChakras(new Set(chakras.map(c => c.id)));
+      setExpandedChakras(new Set(chakras.filter(c => c && c.id).map(c => c.id)));
     }
     setAllExpanded(!allExpanded);
   };
@@ -97,7 +97,7 @@ const ChakraDataTable = ({ chakras }: ChakraDataTableProps) => {
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-emerald-100">
         <div className="divide-y divide-emerald-100">
-          {chakras.map(chakra => {
+          {chakras.filter(c => c && c.id).map(chakra => {
             const isExpanded = expandedChakras.has(chakra.id);
             const items = getChakraItems(chakra, selectedCategory);
             

@@ -32,7 +32,7 @@ const ChakraBody = ({ chakras, onChakraClick }: ChakraBodyProps) => {
     return positions[position - 1] || { top: '50%', left: '50%' };
   };
 
-  const sortedChakras = [...chakras].sort((a, b) => a.position - b.position);
+  const sortedChakras = [...chakras].filter(c => c && c.position).sort((a, b) => a.position - b.position);
 
   return (
     <div className="relative mx-auto max-w-7xl px-4">
