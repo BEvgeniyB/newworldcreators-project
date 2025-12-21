@@ -113,13 +113,14 @@ def get_all_chakras(cur) -> Dict[str, Any]:
     }
 
 def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
+    schema = 't_p91912798_newworldcreators_pro'
     query = f"""
         SELECT 
             c.*,
             u.name as responsible_name,
             u.email as responsible_email
-        FROM chakras c
-        LEFT JOIN users u ON c.responsible_user_id = u.id
+        FROM {schema}.chakras c
+        LEFT JOIN {schema}.users u ON c.responsible_user_id = u.id
         WHERE c.id = {chakra_id}
     """
     cur.execute(query)
@@ -136,48 +137,48 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
     
     cur.execute(f'''
         SELECT cc.concept, cc.category, cc.user_id, u.name as user_name
-        FROM chakra_concepts cc
-        LEFT JOIN users u ON cc.user_id = u.id
+        FROM {schema}.chakra_concepts cc
+        LEFT JOIN {schema}.users u ON cc.user_id = u.id
         WHERE cc.chakra_id = {chakra_id}
     ''')
     chakra_dict['concepts'] = [dict(c) for c in cur.fetchall()]
     
     cur.execute(f'''
         SELECT co.organ_name, co.description, co.user_id, u.name as user_name
-        FROM chakra_organs co
-        LEFT JOIN users u ON co.user_id = u.id
+        FROM {schema}.chakra_organs co
+        LEFT JOIN {schema}.users u ON co.user_id = u.id
         WHERE co.chakra_id = {chakra_id}
     ''')
     chakra_dict['organs'] = [dict(o) for o in cur.fetchall()]
     
     cur.execute(f'''
         SELECT cs.science_name, cs.description, cs.user_id, u.name as user_name
-        FROM chakra_sciences cs
-        LEFT JOIN users u ON cs.user_id = u.id
+        FROM {schema}.chakra_sciences cs
+        LEFT JOIN {schema}.users u ON cs.user_id = u.id
         WHERE cs.chakra_id = {chakra_id}
     ''')
     chakra_dict['sciences'] = [dict(s) for s in cur.fetchall()]
     
     cur.execute(f'''
         SELECT cr.responsibility, cr.category, cr.user_id, u.name as user_name
-        FROM chakra_responsibilities cr
-        LEFT JOIN users u ON cr.user_id = u.id
+        FROM {schema}.chakra_responsibilities cr
+        LEFT JOIN {schema}.users u ON cr.user_id = u.id
         WHERE cr.chakra_id = {chakra_id}
     ''')
     chakra_dict['responsibilities'] = [dict(r) for r in cur.fetchall()]
     
     cur.execute(f'''
         SELECT cbn.id, cbn.basic_need, cbn.description, cbn.user_id, u.name as user_name
-        FROM chakra_basic_needs cbn
-        LEFT JOIN users u ON cbn.user_id = u.id
+        FROM {schema}.chakra_basic_needs cbn
+        LEFT JOIN {schema}.users u ON cbn.user_id = u.id
         WHERE cbn.chakra_id = {chakra_id}
     ''')
     chakra_dict['basic_needs'] = [dict(bn) for bn in cur.fetchall()]
     
     cur.execute(f'''
         SELECT cq.question, cq.is_resolved, cq.user_id, u.name as user_name
-        FROM chakra_questions cq
-        LEFT JOIN users u ON cq.user_id = u.id
+        FROM {schema}.chakra_questions cq
+        LEFT JOIN {schema}.users u ON cq.user_id = u.id
         WHERE cq.chakra_id = {chakra_id}
     ''')
     chakra_dict['questions'] = [dict(q) for q in cur.fetchall()]
@@ -207,7 +208,7 @@ def update_chakra(cur, conn, chakra_id: str, data: Dict, user_id: str) -> Dict[s
         }
     
     values.append(chakra_id)
-    query = f"UPDATE chakras SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP WHERE id = %s"
+    query = f"UPDATE t_p91912798_newworldcreators_pro.chakras SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP WHERE id = %s"
     
     cur.execute(query, values)
     conn.commit()
