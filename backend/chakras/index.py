@@ -114,6 +114,8 @@ def get_all_chakras(cur) -> Dict[str, Any]:
 
 def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
     schema = 't_p91912798_newworldcreators_pro'
+    # Simple Query Protocol - escape single quotes
+    safe_id = str(int(chakra_id))  # Ensure it's a valid integer
     query = f"""
         SELECT 
             c.*,
@@ -121,7 +123,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
             u.email as responsible_email
         FROM {schema}.chakras c
         LEFT JOIN {schema}.users u ON c.responsible_user_id = u.id
-        WHERE c.id = {chakra_id}
+        WHERE c.id = {safe_id}
     """
     cur.execute(query)
     
@@ -139,7 +141,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT cc.concept, cc.category, cc.user_id, u.name as user_name
         FROM {schema}.chakra_concepts cc
         LEFT JOIN {schema}.users u ON cc.user_id = u.id
-        WHERE cc.chakra_id = {chakra_id}
+        WHERE cc.chakra_id = {safe_id}
     ''')
     chakra_dict['concepts'] = [dict(c) for c in cur.fetchall()]
     
@@ -147,7 +149,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT co.organ_name, co.description, co.user_id, u.name as user_name
         FROM {schema}.chakra_organs co
         LEFT JOIN {schema}.users u ON co.user_id = u.id
-        WHERE co.chakra_id = {chakra_id}
+        WHERE co.chakra_id = {safe_id}
     ''')
     chakra_dict['organs'] = [dict(o) for o in cur.fetchall()]
     
@@ -155,7 +157,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT cs.science_name, cs.description, cs.user_id, u.name as user_name
         FROM {schema}.chakra_sciences cs
         LEFT JOIN {schema}.users u ON cs.user_id = u.id
-        WHERE cs.chakra_id = {chakra_id}
+        WHERE cs.chakra_id = {safe_id}
     ''')
     chakra_dict['sciences'] = [dict(s) for s in cur.fetchall()]
     
@@ -163,7 +165,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT cr.responsibility, cr.category, cr.user_id, u.name as user_name
         FROM {schema}.chakra_responsibilities cr
         LEFT JOIN {schema}.users u ON cr.user_id = u.id
-        WHERE cr.chakra_id = {chakra_id}
+        WHERE cr.chakra_id = {safe_id}
     ''')
     chakra_dict['responsibilities'] = [dict(r) for r in cur.fetchall()]
     
@@ -171,7 +173,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT cbn.id, cbn.basic_need, cbn.description, cbn.user_id, u.name as user_name
         FROM {schema}.chakra_basic_needs cbn
         LEFT JOIN {schema}.users u ON cbn.user_id = u.id
-        WHERE cbn.chakra_id = {chakra_id}
+        WHERE cbn.chakra_id = {safe_id}
     ''')
     chakra_dict['basic_needs'] = [dict(bn) for bn in cur.fetchall()]
     
@@ -179,7 +181,7 @@ def get_chakra_detail(cur, chakra_id: str) -> Dict[str, Any]:
         SELECT cq.question, cq.is_resolved, cq.user_id, u.name as user_name
         FROM {schema}.chakra_questions cq
         LEFT JOIN {schema}.users u ON cq.user_id = u.id
-        WHERE cq.chakra_id = {chakra_id}
+        WHERE cq.chakra_id = {safe_id}
     ''')
     chakra_dict['questions'] = [dict(q) for q in cur.fetchall()]
     
