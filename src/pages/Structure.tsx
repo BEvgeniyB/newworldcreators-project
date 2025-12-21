@@ -36,7 +36,7 @@ const Structure = () => {
 
   const fetchAllChakrasWithDetails = async () => {
     const CACHE_KEY = 'chakras_full_details_cache';
-    const CACHE_DURATION = 60 * 60 * 1000;
+    const CACHE_DURATION = 5 * 60 * 1000;
     
     try {
       const cached = localStorage.getItem(CACHE_KEY);
@@ -45,28 +45,44 @@ const Structure = () => {
         const isExpired = Date.now() - timestamp > CACHE_DURATION;
         
         if (!isExpired && data?.length > 0) {
-          console.log('Using cached chakras full data');
+          console.log('Using cached chakras data');
           setChakras(data);
           setLoading(false);
           return;
         }
       }
       
+      console.log('Fetching fresh chakras data from API...');
       const chakraIds = [1, 2, 3, 4, 5, 6, 7];
       const promises = chakraIds.map(id => 
         fetch(`https://functions.poehali.dev/80aff614-40a9-46c9-9ad5-1f04d234e307?id=${id}`)
-          .then(res => res.json())
-          .then(data => data.chakra)
+          .then(res => {
+            if (!res.ok) {
+              console.error(`HTTP ${res.status} for chakra ${id}`);
+              return null;
+            }
+            return res.json();
+          })
+          .then(data => data?.chakra || null)
+          .catch(err => {
+            console.error(`Error fetching chakra ${id}:`, err);
+            return null;
+          })
       );
       
       const allChakras = await Promise.all(promises);
+      const validChakras = allChakras.filter(Boolean);
       
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        data: allChakras,
-        timestamp: Date.now()
-      }));
-      
-      setChakras(allChakras.filter(Boolean));
+      if (validChakras.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data: validChakras,
+          timestamp: Date.now()
+        }));
+        console.log(`Loaded ${validChakras.length} chakras successfully`);
+        setChakras(validChakras);
+      } else {
+        console.error('No valid chakras loaded');
+      }
     } catch (error) {
       console.error('Error fetching chakras:', error);
     } finally {
