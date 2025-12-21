@@ -99,8 +99,8 @@ def get_all_chakras(cur) -> Dict[str, Any]:
             c.id, c.name, c.position, c.color, c.symbol_url,
             c.continent, c.right_statement, c.status,
             u.name as responsible_name
-        FROM chakras c
-        LEFT JOIN users u ON c.responsible_user_id = u.id
+        FROM t_p91912798_newworldcreators_pro.chakras c
+        LEFT JOIN t_p91912798_newworldcreators_pro.users u ON c.responsible_user_id = u.id
         ORDER BY c.position
     '''
     cur.execute(query)
