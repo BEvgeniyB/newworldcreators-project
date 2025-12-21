@@ -12,7 +12,7 @@ from typing import Dict, Any, Optional, List
 import jwt
 from datetime import datetime
 
-SCHEMA = 't_p89870318_access_bars_service'
+SCHEMA = 't_p91912798_newworldcreators_pro'
 
 TABLES = {
     'chakras': ['id', 'name', 'position', 'color', 'right_statement'],
@@ -32,6 +32,78 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         return payload
     except:
         return None
+
+def handle_login(event: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        body = json.loads(event.get('body', '{}'))
+        telegram_id = body.get('telegram_id', '').strip()
+        telegram_group_id = body.get('telegram_group_id', '').strip()
+        
+        if not telegram_id or not telegram_group_id:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Требуется telegram_id и telegram_group_id'})
+            }
+        
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'DATABASE_URL не настроен'})
+            }
+        
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        cur.execute(
+            f"SELECT id, name, email, role, is_admin, telegram_id, telegram_username, chakra_id FROM {SCHEMA}.users WHERE telegram_id = %s",
+            (telegram_id,)
+        )
+        user_row = cur.fetchone()
+        
+        if not user_row:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Пользователь не найден'})
+            }
+        
+        user = {
+            'id': user_row[0],
+            'name': user_row[1],
+            'email': user_row[2],
+            'role': user_row[3],
+            'is_admin': user_row[4],
+            'telegram_id': user_row[5],
+            'telegram_username': user_row[6],
+            'chakra_id': user_row[7]
+        }
+        
+        jwt_secret = os.environ.get('ADMIN_TOKEN', 'default-secret-key')
+        token = jwt.encode(
+            {'user_id': user['id'], 'is_admin': user['is_admin']},
+            jwt_secret,
+            algorithm='HS256'
+        )
+        
+        cur.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'token': token, 'user': user})
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)})
+        }
 
 def log_change(cur, user_id: int, table: str, record_id: int, field: str, old_val: Any, new_val: Any):
     if table == 'chakras':
@@ -63,6 +135,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             'body': ''
         }
+    
+    params = event.get('queryStringParameters', {}) or {}
+    action = params.get('action')
+    
+    if action == 'login' and method == 'POST':
+        return handle_login(event)
     
     headers = event.get('headers', {})
     token = headers.get('X-Auth-Token') or headers.get('x-auth-token')
