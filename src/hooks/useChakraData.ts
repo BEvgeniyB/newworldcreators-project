@@ -23,16 +23,16 @@ interface Chakra {
 export const useChakraData = (token: string | null, selectedUserId: number | null) => {
   const [users, setUsers] = useState<User[]>([]);
   const [chakras, setChakras] = useState<Chakra[]>([]);
-  const [concepts, setConcepts] = useState<any[]>([]);
-  const [organs, setOrgans] = useState<any[]>([]);
-  const [sciences, setSciences] = useState<any[]>([]);
-  const [responsibilities, setResponsibilities] = useState<any[]>([]);
-  const [basicNeeds, setBasicNeeds] = useState<any[]>([]);
-  const [allConcepts, setAllConcepts] = useState<any[]>([]);
-  const [allOrgans, setAllOrgans] = useState<any[]>([]);
-  const [allSciences, setAllSciences] = useState<any[]>([]);
-  const [allResponsibilities, setAllResponsibilities] = useState<any[]>([]);
-  const [allBasicNeeds, setAllBasicNeeds] = useState<any[]>([]);
+  const [concepts, setConcepts] = useState<Record<string, unknown>[]>([]);
+  const [organs, setOrgans] = useState<Record<string, unknown>[]>([]);
+  const [sciences, setSciences] = useState<Record<string, unknown>[]>([]);
+  const [responsibilities, setResponsibilities] = useState<Record<string, unknown>[]>([]);
+  const [basicNeeds, setBasicNeeds] = useState<Record<string, unknown>[]>([]);
+  const [allConcepts, setAllConcepts] = useState<Record<string, unknown>[]>([]);
+  const [allOrgans, setAllOrgans] = useState<Record<string, unknown>[]>([]);
+  const [allSciences, setAllSciences] = useState<Record<string, unknown>[]>([]);
+  const [allResponsibilities, setAllResponsibilities] = useState<Record<string, unknown>[]>([]);
+  const [allBasicNeeds, setAllBasicNeeds] = useState<Record<string, unknown>[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const authFetch = useCallback(
@@ -71,13 +71,13 @@ export const useChakraData = (token: string | null, selectedUserId: number | nul
       const responsibilitiesData = await responsibilitiesRes.json();
       const needsData = await needsRes.json();
 
-      setUsers(usersData.data || []);
-      setChakras(chakrasData.data || []);
-      setAllConcepts(conceptsData.data || []);
-      setAllOrgans(organsData.data || []);
-      setAllSciences(sciencesData.data || []);
-      setAllResponsibilities(responsibilitiesData.data || []);
-      setAllBasicNeeds(needsData.data || []);
+      setUsers(usersData.users || usersData.data || []);
+      setChakras(chakrasData.chakras || chakrasData.data || []);
+      setAllConcepts(conceptsData.chakra_concepts || conceptsData.data || []);
+      setAllOrgans(organsData.chakra_organs || organsData.data || []);
+      setAllSciences(sciencesData.chakra_sciences || sciencesData.data || []);
+      setAllResponsibilities(responsibilitiesData.chakra_responsibilities || responsibilitiesData.data || []);
+      setAllBasicNeeds(needsData.chakra_basic_needs || needsData.data || []);
     } catch (error) {
       console.error('Error loading all data:', error);
     }
@@ -107,11 +107,11 @@ export const useChakraData = (token: string | null, selectedUserId: number | nul
         const responsibilitiesData = await responsibilitiesRes.json();
         const needsData = await needsRes.json();
 
-        setConcepts(conceptsData.data || []);
-        setOrgans(organsData.data || []);
-        setSciences(sciencesData.data || []);
-        setResponsibilities(responsibilitiesData.data || []);
-        setBasicNeeds(needsData.data || []);
+        setConcepts(conceptsData.chakra_concepts || conceptsData.data || []);
+        setOrgans(organsData.chakra_organs || organsData.data || []);
+        setSciences(sciencesData.chakra_sciences || sciencesData.data || []);
+        setResponsibilities(responsibilitiesData.chakra_responsibilities || responsibilitiesData.data || []);
+        setBasicNeeds(needsData.chakra_basic_needs || needsData.data || []);
       } catch (error) {
         console.error('Error loading user data:', error);
       }
