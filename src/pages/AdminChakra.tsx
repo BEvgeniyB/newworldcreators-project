@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import LoginForm from '@/components/admin/chakra/LoginForm';
@@ -72,12 +72,6 @@ const AdminChakra = () => {
 
   const auth = useAdminAuth();
   const data = useChakraData(auth.token, selectedUserId);
-
-  useEffect(() => {
-    if (auth.isAuthenticated && auth.token) {
-      data.loadAllData();
-    }
-  }, [auth.isAuthenticated]);
 
   const actions = useChakraActions({
     token: auth.token,

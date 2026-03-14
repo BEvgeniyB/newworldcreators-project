@@ -83,6 +83,12 @@ export const useChakraData = (token: string | null, selectedUserId: number | nul
     }
   }, [token, authFetch]);
 
+  useEffect(() => {
+    if (token) {
+      loadAllData();
+    }
+  }, [token]);
+
   const loadUserData = useCallback(
     async (userId: number) => {
       if (!token) return;
