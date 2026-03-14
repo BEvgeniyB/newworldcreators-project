@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 const API_URL = 'https://functions.poehali.dev/ec72bbed-cfa0-4561-8e43-5fe96626422b';
 
@@ -113,11 +113,7 @@ export const useChakraData = (token: string | null, selectedUserId: number | nul
     [token, authFetch]
   );
 
-  useEffect(() => {
-    if (token) {
-      loadAllData();
-    }
-  }, [token, loadAllData]);
+
 
   useEffect(() => {
     if (selectedUserId) {

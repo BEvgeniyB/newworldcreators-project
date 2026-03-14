@@ -32,7 +32,7 @@ export const useAdminAuth = () => {
     }
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = async (onSuccess?: () => void) => {
     if (!telegramId.trim() || !telegramGroupId.trim()) {
       setError('Введите Telegram ID и ID группы');
       return;
@@ -59,6 +59,7 @@ export const useAdminAuth = () => {
         setIsAuthenticated(true);
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('currentUser', JSON.stringify(data.user));
+        if (onSuccess) onSuccess();
       } else {
         setError(data.error || 'Ошибка входа');
       }
